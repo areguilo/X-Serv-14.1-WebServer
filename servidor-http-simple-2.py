@@ -1,47 +1,35 @@
 #!/usr/bin/python3
 """
-Simple HTTP Server version 2: reuses the port, so it can be
-restarted right after it has been killed. Accepts connects from
-the outside world, by binding to the primary interface of the host.
-
-Jesus M. Gonzalez-Barahona and Gregorio Robles
-{jgb, grex} @ gsyc.es
-SAT and SARO subjects (Universidad Rey Juan Carlos)
+    Ejercicio URLs aleatorias
 """
 
 import socket
+import random
 
-# Create a TCP objet socket and bind it to a port
-# Port should be 80, but since it needs root privileges,
-# let's use one above 1024
-
+#<p>Hola, este es el <a href="http://www.duckduckgo.com"> texto del enlace</a></p>
+# /hola es relativo a la raiz de mi servidor, localhost1234/hola
+# si le quito el / es relativo al directorio donde estoy
 mySocket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-# Let the port be reused if no process is actually using it
 mySocket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-# Bind to the address corresponding to the main name of the host
-mySocket.bind((socket.gethostname(), 1235))
-
-# Queue a maximum of 5 TCP connection requests
+mySocket.bind(('localhost', 1236))
 mySocket.listen(5)
 
-# Accept connections, read incoming data, and answer back an HTML page
-#  (in an almost-infinite loop; the loop can be stopped with Ctrl+C)
 
 try:
     while True:
+        randint = random.randint(0,10000000000)
         print('Waiting for connections')
         (recvSocket, address) = mySocket.accept()
         print('Request received:')
         print(recvSocket.recv(2048))
         print('Answering back...')
-        recvSocket.send(b"HTTP/1.1 200 OK\r\n\r\n" +
-                        b"<html><body><h1>Hello World!</h1>" +
-                        b"<p>And in particular hello to you, " +
-                        bytes(address[0], 'utf-8') +
-                        b"</p>" +
-                        b"</body></html>" +
-                        b"\r\n")
+        recvSocket.send(bytes("HTTP/1.1 200 OK\r\n\r\n" +
+                        "<html><head><title>Ejercicio URLs aleatorias</title></head>" +
+                        '<body><p>Hola. <a href = "http://localhost:1236/' +
+                        str(randint) + '"'+
+                        ">Dame Otra</a></p></body></html>" +
+                        "\r\n","utf-8"))
         recvSocket.close()
 except KeyboardInterrupt:
     print("Closing binded socket")
-    mySocket.close()
+mySocket.close()
